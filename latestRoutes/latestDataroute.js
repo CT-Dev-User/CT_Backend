@@ -5,8 +5,8 @@ import { createService, deleteService, editService, getAllServices, getServiceBy
 import { createSolution, deleteSolution, editSolution, getAllSolutions, getSolutionById, getSolutionBySolutionName } from '../latestControllers/solutionController.js';
 import { createIndustry,deleteIndustry, editIndustry, getAllIndustries, getIndustryById, getIndustryByIndustryName } from '../latestControllers/industriesController.js';
 import { createCaseStudy, deleteCaseStudy, editCaseStudy, getAllCaseStudies, getCaseStudyByCategory, getCaseStudyById, getCaseStudyBySubCategory } from '../latestControllers/caseStudyController.js';
-import { addBlog, deleteBlog, getAllBlogs, getBlogById, getBlogBysubCategory, updateBlog } from '../latestControllers/blogController.js';
-import { get } from 'mongoose';
+import { createSubServices, deleteSubServices, editSubServices, getAllSubServices, getSubServicesById, getSubServicesByServices, getSubservicesBySubServicesName } from '../latestControllers/subServicesController.js';
+import { addBlog, deleteBlog, getAllBlogs, getBlogByCategory, getBlogById, getBlogBysubCategory, updateBlog } from '../latestControllers/blogController.js';
 
 const latestrouter = express.Router();
 
@@ -106,8 +106,25 @@ latestrouter.put('/edit-existing-blog-data/:id', upload.fields([
 
 latestrouter.get('/get-latest-blog-data', getAllBlogs);
 latestrouter.get('/get-latest-blog-data-by-id/:id', getBlogById);
+latestrouter.get('/get-latest-blog-data-by-category/:category', getBlogByCategory);
 latestrouter.get('/get-latest-blog-data-by-subcategory/:category/:Subcategory', getBlogBysubCategory);
 latestrouter.delete('/delete-existing-blog-data-by-id/:id', deleteBlog);
+
+// Route to get all Sub services
+latestrouter.post('/create-new-subservice-data', upload.fields([
+    { name: 'cardImage', maxCount: 1 },
+    { name: 'headerImage', maxCount: 1 }
+]), createSubServices);
+latestrouter.put('/edit-existing-subservice-data/:id', upload.fields([
+    { name: 'cardImage', maxCount: 1 },
+    { name: 'headerImage', maxCount: 1 }
+]), editSubServices);
+
+latestrouter.get('/get-latest-subservice-data', getAllSubServices);
+latestrouter.get('/get-subservice-data-by-id/:id', getSubServicesById);
+latestrouter.get('/get-subservice-data-by-subservice/:serviceName/:subServiceTitle', getSubservicesBySubServicesName);
+latestrouter.get('/get-subservice-data-by-service/:serviceName', getSubServicesByServices);
+latestrouter.delete('/delete-existing-subservice-data-by-id/:id', deleteSubServices);
 
 
 export default latestrouter;

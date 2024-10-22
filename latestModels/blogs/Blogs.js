@@ -1,5 +1,5 @@
-//latestModel/blog/blogs.js
 import mongoose from "mongoose";
+
 const LatestBlogSchema = new mongoose.Schema({
     category: { type: String },
     subCategory: { type: String },
@@ -15,5 +15,6 @@ const LatestBlogSchema = new mongoose.Schema({
     }],
     blogTags: { type: String } // separated by commas ", "
 }, { timestamps: true });
+
 const LatestBlogModel = mongoose.model('LatestBlog', LatestBlogSchema);
 export default LatestBlogModel;
