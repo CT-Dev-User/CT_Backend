@@ -22,6 +22,6 @@ app.listen(process.env.PORT, () => {
     console.log('server runnning @http://localhost:8080/')
 })
 
-
+export default app;
 
 
