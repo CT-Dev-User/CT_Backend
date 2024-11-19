@@ -7,8 +7,8 @@ export const addHomeFaq = async (req, res) => {
         const images = [];
         for (const file of req.files) {
             const result = await cloudinary.v2.uploader.upload(file.path);
-            fs.unlinkSync(file.path);
             images.push(result.secure_url);
+            fs.unlinkSync(file.path);
         }
         const newData = new HomeFaqModel({
             question,
@@ -25,6 +25,7 @@ export const addHomeFaq = async (req, res) => {
             saveData
         });
     } catch (error) {
+        // Send error response
         res.status(500).send({ message: error.message });
     }
 };
@@ -34,22 +35,22 @@ export const getHomeFaq = async (req, res) => {
         const getData = await HomeFaqModel.find({}).sort({ createdAt: -1 })
         res.status(200).send({
             message: "All home faq get Successfully", getData
-        });
+        })
 
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
 }
 
-export const updateHomeFaqById = async (req, res) => {                                                                                                                      
+export const updateHomeFaqById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { question, answerText } = req.body;
+        const { question, answerText } = req.body; // Adjusted to match the structure of addHomeFaq
         const images = [];
 
+        // Upload all images to Cloudinary
         for (const file of req.files) {
             const result = await cloudinary.v2.uploader.upload(file.path);
-            fs.unlinkSync(file.path);
             images.push(result.secure_url);
         }
 
@@ -59,10 +60,11 @@ export const updateHomeFaqById = async (req, res) => {
                 error: 'FAQ not found'
             })
         }
+        // Update fields with new values or keep existing values if not provided
         homeFaqById.question = question || homeFaqById.question;
         homeFaqById.answer = {
-            answerText: answerText || homeFaqById.answer.answerText, 
-            answerImg: images[0] || homeFaqById.answer.answerImg || "" 
+            answerText: answerText || homeFaqById.answer.answerText, // Use new answerText if provided, otherwise keep existing one
+            answerImg: images[0] || homeFaqById.answer.answerImg || "" // Use new image if provided, otherwise keep existing one or use empty string
         };
 
         const updatedData = await homeFaqById.save();

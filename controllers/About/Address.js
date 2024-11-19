@@ -1,5 +1,6 @@
 import addressModel from '../../Models/About/address.js';
 
+//Add HeroSection Data
 export const addAddress = async (req, res) => {
     try {
         const { address } = req.body;
@@ -17,6 +18,7 @@ export const addAddress = async (req, res) => {
     }
 }
 
+//get heroSection Data
 export const getAddress = async (req, res) => {
     try {
         const getdata = await addressModel.find({}).sort({ createdAt: -1 });
@@ -31,6 +33,7 @@ export const getAddress = async (req, res) => {
 
 }
 
+//Update Herosection Data
 export const editAddress = async (req, res) => {
     try {
         const { id } = req.params;
@@ -52,6 +55,7 @@ export const editAddress = async (req, res) => {
     }
 }
 
+//Delete herosection Data
 export const deleteAddress = async (req, res) => {
     try {
         const { id } = req.params;

@@ -17,6 +17,7 @@ export const register = async (req, res) => {
         role,
       });
       const userSave = await newuser.save();
+      console.log(userSave);
       res.status(200).send({ message: "User registered", user: userSave });
     }
   } catch (error) {
@@ -25,8 +26,10 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+  console.log(req.body)
   try {
     const { email, password } = req.body;
+    console.log(email, password)
     const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(400).send("User does not exist, please sign up first");
@@ -35,6 +38,7 @@ export const login = async (req, res) => {
       if (match) {
         const token = await user.generatetoken();
         res.status(200).send({ token, user });
+        console.log(token);
       }else{
       return res.status(400).send({message:"plz check your credentials"});
       }

@@ -1,13 +1,12 @@
-import FaqModel from "../../Models/FAQModels.js";
+import CaseStudyModel from "../../Models/caseStudiesModel/CaseStudiesModel.js";
 import cloudinary from "../../cloudinary.js";
 import fs from 'fs'
 
-export const addFaq = async (req, res) => {
+export const addCaseStudy = async (req, res) => {
     try {
-        // Destructuring category, question, and answerText from req.body
-        console.log(req.body)
-        const { category, Subcategory, question, answerText } = req.body;
-        console.log(req.body)
+
+        const { category, Subcategory, title, desc, coreTech } = req.body;
+
         // Array to store uploaded image URLs
         const images = [];
 
@@ -20,17 +19,14 @@ export const addFaq = async (req, res) => {
                 fs.unlinkSync(file.path);
             }
         }
-
-
         // Create a new instance of FaqModel
-        const newData = new FaqModel({
+        const newData = new CaseStudyModel({
             category,
             Subcategory,
-            question,
-            answer: {
-                answerText,
-                answerImg: images.length > 0 ? images[0] : ""
-            }
+            title,
+            caseStudyImage: images.length > 0 ? images[0] : "",
+            desc,
+            coreTech
         });
 
         // Save data to the database
@@ -48,11 +44,11 @@ export const addFaq = async (req, res) => {
 };
 
 
-export const getFaq = async (req, res) => {
+export const getCaseStudies = async (req, res) => {
     try {
-        const getData = await FaqModel.find({});
+        const getData = await CaseStudyModel.find({});
         res.status(200).send({
-            message: "All faq get Successfully", getData
+            message: "All case studies get Successfully", getData
         })
 
     } catch (error) {
@@ -60,60 +56,50 @@ export const getFaq = async (req, res) => {
     }
 }
 
-export const getFaqByCategory = async (req, res) => {
+export const getCaseStudiesByCategory = async (req, res) => {
     try {
         const { category } = req.params;
 
-        // Construct the query object to find documents by category
-        const getDataByCategory = await FaqModel.find({ category });
-
-        // Check if data was found
-        if (getDataByCategory) {
-            res.status(200).send({
-                message: "FAQs retrieved successfully",
-                data: getDataByCategory
-            });
-        } else {
-            res.status(200).send({
-                message: "No FAQs found for the specified category"
-            });
-        }
+        const getDataByCategory = await CaseStudyModel.find({ category });
+        res.status(200).send({
+            message: "case studies retrieved successfully",
+            data: getDataByCategory
+        })
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
 };
 
-export const getFaqBySubCategory = async (req, res) => {
+export const getCaseStudyBySubCategory = async (req, res) => {
     try {
         const { Subcategory } = req.params;
 
         // Construct the query object to find documents by category and Subcategory
-        const getDataBySubCategory = await FaqModel.find({ Subcategory: Subcategory });
+        const getDataBySubCategory = await CaseStudyModel.find({ Subcategory: Subcategory });
 
         // Check if data was found
         if (getDataBySubCategory.length > 0) {
             res.status(200).send({
-                message: "FAQs retrieved successfully",
+                message: "CS retrieved successfully",
                 data: getDataBySubCategory
             });
         } else {
             res.status(200).send({
-                message: "No FAQs found for the specified category and subcategory"
+                message: "No CS found for the specified category and subcategory"
             });
         }
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
 };
-export const getFaqByCategorySubCategory = async (req, res) => {
+export const getCSByCategorySubCategory = async (req, res) => {
     try {
         const { category, Subcategory } = req.params;
 
         // Construct the query object to find documents by category and Subcategory
-        const getDataBySubCategory = await FaqModel.find({ category, Subcategory });
-
+        const getDataBySubCategory = await CaseStudyModel.find({ category, Subcategory });
         res.status(200).send({
-            message: "FAQs retrieved successfully",
+            message: "CS retrieved successfully",
             data: getDataBySubCategory
         });
     } catch (error) {
@@ -122,14 +108,18 @@ export const getFaqByCategorySubCategory = async (req, res) => {
 };
 
 
-export const updateFaqById = async (req, res) => {
+
+export const updateCaseStudyById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { question, answerText } = req.body; // Adjusted to match the structure of addHomeFaq
+        const { category, Subcategory, title, desc, coreTech } = req.body;
+
+        // Array to store uploaded image URLs
         const images = [];
 
-        // Upload all images to Cloudinary
+        // Check if req.files exists and is an array
         if (req.files && Array.isArray(req.files)) {
+            // Loop through uploaded files and upload to Cloudinary
             for (const file of req.files) {
                 const result = await cloudinary.v2.uploader.upload(file.path);
                 images.push(result.secure_url);
@@ -137,21 +127,28 @@ export const updateFaqById = async (req, res) => {
             }
         }
 
-        const faqById = await FaqModel.findById(id);
-        if (!faqById) {
+        // Find the case study by id
+        const caseStudy = await CaseStudyModel.findById(id);
+        if (!caseStudy) {
             return res.status(404).json({
-                error: 'FAQ not found'
+                error: 'Case study not found'
             });
         }
 
         // Update fields with new values or keep existing values if not provided
-        faqById.question = question || faqById.question;
-        faqById.answer = {
-            answerText: answerText || faqById.answer.answerText, // Use new answerText if provided, otherwise keep existing one
-            answerImg: images[0] || faqById.answer.answerImg || "" // Use new image if provided, otherwise keep existing one or use empty string
-        };
+        caseStudy.category = category || caseStudy.category;
+        caseStudy.Subcategory = Subcategory || caseStudy.Subcategory;
+        caseStudy.title = title || caseStudy.title;
+        caseStudy.desc = desc || caseStudy.desc;
+        caseStudy.coreTech = coreTech || caseStudy.coreTech;
 
-        const updatedData = await faqById.save();
+        // Update the image if a new one was uploaded
+        if (images.length > 0) {
+            caseStudy.caseStudyImage = images[0];
+        }
+
+        // Save the updated case study
+        const updatedData = await caseStudy.save();
 
         res.status(200).send({
             message: "Data updated successfully",
@@ -163,10 +160,10 @@ export const updateFaqById = async (req, res) => {
 };
 
 
-export const deleteFaq = async (req, res) => {
+export const deleteCaseStudy = async (req, res) => {
     try {
         const { id } = req.params;
-        await FaqModel.findByIdAndDelete({ _id: id })
+        await CaseStudyModel.findByIdAndDelete({ _id: id })
 
         res.status(200).send({
             message: "Data deleted successfully"

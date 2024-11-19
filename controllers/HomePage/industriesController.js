@@ -1,11 +1,10 @@
-import ClientReviewModel from "../../Models/HomePage/meetOurClientModel.js";
+import industriesModel from "../../Models/HomePage/industriesWeServe.js";
 import cloudinary from "../../cloudinary.js";
 import fs from 'fs'
 
-
-export const addClientReviewData = async (req, res) => {
+export const addIndustriesData = async (req, res) => {
     try {
-        const { name, review, jobProfile } = req.body;
+        const { title, desc } = req.body;
         const images = [];
         const uploadedFiles = req.files;
         for (const file of uploadedFiles) {
@@ -13,8 +12,8 @@ export const addClientReviewData = async (req, res) => {
             images.push(result.secure_url);
             fs.unlinkSync(file.path);
         }
-        const newData = new ClientReviewModel({
-            name, review, jobProfile, profileImage: images[0] || ""
+        const newData = new industriesModel({
+            title, desc, homePageIndustryImage: images[0] || ""
         })
         const saveData = await newData.save();
         res.status(200).send({
@@ -27,9 +26,9 @@ export const addClientReviewData = async (req, res) => {
     }
 }
 
-export const getClientReviewData = async (req, res) => {
+export const getIndustriesData = async (req, res) => {
     try {
-        const getData = await ClientReviewModel.find({}).sort({ createdAt: -1 })
+        const getData = await industriesModel.find({}).sort({ createdAt: -1 })
         res.status(200).send({
             message: "All data get Successfully", getData
         })
@@ -39,10 +38,11 @@ export const getClientReviewData = async (req, res) => {
     }
 }
 
-export const editClientReviewData = async (req, res) => {
+export const editIndustriesData = async (req, res) => {
     try {
         const { id } = req.params
-        const {name, review, jobProfile } = req.body;
+        const { title, desc } = req.body;
+        console.log(req.body)
         const images = [];
         const uploadedFiles = req.files;
         for (const file of uploadedFiles) {
@@ -51,36 +51,35 @@ export const editClientReviewData = async (req, res) => {
             fs.unlinkSync(file.path);
         }
 
-        const clientById = await ClientReviewModel.findById(id);
-        if (!caseStudyById) {
+        const industryById = await industriesModel.findById(id);
+        if (!industryById) {
             return res.status(404).json({
-                error: 'solution not found'
+                error: 'industry not fouind'
             })
         }
-        clientById.name = name || clientById.title
-        clientById.review = review || clientById.review
-        clientById.profileImage = images[0] || clientById.profileImage
-        clientById.jobProfile = jobProfile || clientById.jobProfile
-        const saveData = await clientById
 
+        industryById.title = title || industryById.title
+        industryById.desc = desc || industryById.desc
+        industryById.homePageIndustryImage = images[0] || industryById.homePageIndustryImage
+        await industryById.save();
         res.status(200).send({
             message: "Data updated Successfully",
-            saveData
+            industryById
         })
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
 }
 
-export const deleteClientReviewData = async (req, res) => {
+export const deleteIndustriesData = async (req, res) => {
     try {
         const { id } = req.params;
-        await ClientReviewModel.findByIdAndDelete({ _id: id })
+        await industriesModel.findByIdAndDelete({ _id: id })
 
         res.status(200).send({
             message: "Data deleted successfully"
         })
-    } catch (error) {
+    } catch (error) {333333
         res.status(500).send({ message: error.message });
     }
 }
